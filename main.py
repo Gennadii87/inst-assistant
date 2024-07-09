@@ -7,6 +7,7 @@ from instaloader import (Instaloader,
                          ConnectionException,
                          LoginRequiredException)
 
+from followers import followers_actions
 
 load_dotenv()
 
@@ -57,11 +58,11 @@ except ConnectionException as e:
     exit(1)
 
 
-def print_followers(profile_):
+def profile_actions(profile_):
     try:
         quantity_followers = profile_.followers
         followers = profile_.get_followers()
-        follower_names = [follower.username for follower in followers]
+        follower_names = set([follower.username for follower in followers])
     except LoginRequiredException as exc:
         print(f"Login required to get followers: {exc}")
         exit(1)
@@ -74,14 +75,28 @@ def print_followers(profile_):
 
     result_name = profile_.username
     result_follow = quantity_followers
+    follower_names_str = '\n'.join(follower_names)
 
-    result_all = (
-                     f"Имя пользователя: {result_name}, "
-                     f""f"Количество подписчиков: {result_follow},\nИмена подписчиков:\n"
-                 ) + '\n'.join(follower_names)
+    result_actions = followers_actions(follower_names, target_username)
 
+    with open(f"followers.{target_username}.txt", "w") as file:
+        if follower_names:
+            file.write(follower_names_str)
+            print(f"{file.name} записан")
+
+    result_all = {
+                    "Имя пользователя": result_name,
+                    "Количество подписчиков": result_follow,
+                    "Действия": result_actions
+
+                 }
+    print(result_all)
     return result_all
 
 
+def main():
+    profile_actions(profile)
+
+
 if __name__ == "__main__":
-    print(print_followers(profile))
+    main()
