@@ -11,10 +11,10 @@ def func_stopwatch(func):
     return wrapper
 
 
-def followers_actions(response, target_username):
+def followers_actions(response, target_username, folder_path):
 
-    if os.path.exists(f"followers.{target_username}.txt"):
-        with open(f"followers.{target_username}.txt", "r") as file:
+    if os.path.exists(f"{folder_path}/followers.{target_username}.txt"):
+        with open(f"{folder_path}/followers.{target_username}.txt", "r") as file:
 
             followers_result_read = file.read()
             set_followers = set(followers_result_read.split('\n'))
@@ -23,17 +23,17 @@ def followers_actions(response, target_username):
             new_followers = response.difference(set_followers)
 
             if not_followers:
-                with open(f"unfollowed.{target_username}.txt", "a") as not_f:
+                with open(f"{folder_path}/unfollowed.{target_username}.txt", "a") as not_f:
                     not_followers_str = '\n'.join(not_followers)
                     not_f.write(not_followers_str + '\n')
 
                     return f"отписавшиеся: {list(not_followers)}"
 
             if new_followers:
-                with open(f"new_followed.{target_username}.txt", "w") as not_f:
+                with open(f"{folder_path}/new_followed.{target_username}.txt", "w") as not_f:
                     new_followers_str = '\n'.join(new_followers)
-                    not_f.write(new_followers_str)
+                    not_f.write(new_followers_str + '\n')
 
-                    return f"новые followers:\n{new_followers_str}"
+                    return f"новые followers: {list(not_followers)}"
 
         return f"Изменений в followers нет"

@@ -26,6 +26,9 @@ if not username or not password:
 loader = Instaloader(sleep=True)
 NodeIterator._graphql_page_length = 10
 
+folder_path = os.path.join(os.getcwd(), "followers")
+os.makedirs(folder_path, exist_ok=True)
+
 print(f"Инициализация {datetime.now().time()}")
 
 
@@ -68,7 +71,7 @@ except ConnectionException as e:
 
 
 @func_stopwatch
-def profile_actions(profile_, context):
+def profile_actions(profile_, context, folder):
     try:
         context.do_sleep()
         print(f"start: {datetime.now().time()}")
@@ -116,9 +119,9 @@ def profile_actions(profile_, context):
     result_follow = quantity_followers
     follower_names_str = '\n'.join(follower_names)
 
-    result_actions = followers_actions(follower_names, target_username)
+    result_actions = followers_actions(follower_names, target_username, folder)
 
-    with open(f"followers.{target_username}.txt", "w") as file:
+    with open(f"{folder_path}/followers.{target_username}.txt", "w") as file:
 
         if follower_names:
             file.write(follower_names_str)
@@ -135,7 +138,7 @@ def profile_actions(profile_, context):
 
 
 def main():
-    timer = profile_actions(profile, context=loader.context)
+    timer = profile_actions(profile_=profile, context=loader.context, folder=folder_path)
     if timer < 61:
         print(f"время выполнения {round(timer, 3)}sec")
     else:
