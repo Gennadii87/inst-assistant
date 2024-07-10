@@ -2,17 +2,19 @@ import os
 import sys
 from datetime import datetime
 from time import sleep
-
 from dotenv import load_dotenv
+
 from instaloader import (Instaloader,
                          Profile,
                          TwoFactorAuthRequiredException,
                          BadCredentialsException,
                          ConnectionException,
-                         LoginRequiredException, NodeIterator, QueryReturnedBadRequestException)
+                         LoginRequiredException,
+                         NodeIterator,
+                         QueryReturnedBadRequestException)
 
-from service import followers_actions
-from service import func_stopwatch
+from service.service import followers_actions
+from service.service import func_stopwatch
 
 load_dotenv()
 
