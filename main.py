@@ -1,4 +1,5 @@
 import os
+import sys
 from datetime import datetime
 
 from dotenv import load_dotenv
@@ -7,7 +8,7 @@ from instaloader import (Instaloader,
                          TwoFactorAuthRequiredException,
                          BadCredentialsException,
                          ConnectionException,
-                         LoginRequiredException, NodeIterator)
+                         LoginRequiredException, NodeIterator, QueryReturnedBadRequestException)
 
 from service import followers_actions
 from service import func_stopwatch
@@ -45,28 +46,37 @@ except FileNotFoundError:
         two_factor_code = input("Enter the 2FA code: ")
         try:
             loader.context.two_factor_login(two_factor_code)
-        except BadCredentialsException as e:
-            print(f"Failed 2FA login: {e}")
+        except BadCredentialsException as exc:
+            print(f"Failed 2FA login: {exc}")
             exit(1)
-    except BadCredentialsException as e:
-        print(f"Invalid credentials: {e}")
+    except BadCredentialsException as exc:
+        print(f"Invalid credentials: {exc}")
         exit(1)
-    except ConnectionException as e:
-        print(f"Connection error: {e}")
+    except ConnectionException as exc:
+        print(f"Connection error: {exc}")
         exit(1)
-    except LoginRequiredException as e:
-        print(f"Login required: {e}")
+    except LoginRequiredException as exc:
+        print(f"Login required: {exc}")
         exit(1)
 
     loader.save_session_to_file(f"session_file_{username}")
 
+
 try:
     profile = Profile.from_username(loader.context, target_username)
-except LoginRequiredException as e:
-    print(f"Login required to access profile: {e}")
+    print(f"Profile {profile.username} has {profile.followers} followers.")
+except ConnectionException as exc:
+    print(f"Connection error while accessing profile: {exc}")
     exit(1)
-except ConnectionException as e:
-    print(f"Connection error while accessing profile: {e}")
+except LoginRequiredException as exc:
+    print(f"Login required to access profile: {exc}")
+    exit(1)
+except QueryReturnedBadRequestException as exc:
+    print(f"Challenge required: {exc}")
+    print("Please complete the challenge verification in your Instagram app or website and then re-run the script.")
+    exit(1)
+except Exception as exc:
+    print(f"Failed to fetch profile: {exc}")
     exit(1)
 
 
@@ -87,7 +97,7 @@ def profile_actions(profile_, context, folder):
 
         page_length_int = followers.page_length()
 
-        print(f"Длинна запрашиваемой страницы {page_length_int}")
+        print(f"Длинна страницы {page_length_int}")
 
         follower_names = set()
 
@@ -100,8 +110,8 @@ def profile_actions(profile_, context, folder):
                     context.do_sleep()
 
                 sleep_time = request_sleep()
-                timer = round(sleep_time, 3)
-                print(f"Пауза ({timer}sec)... {index} followers")
+                timer = sleep_time.get("timer")
+                print(f"Пауза {timer[16:25]}... {index} followers")
 
         print(f"Completed fetching followers: {len(follower_names)}")
 
@@ -109,7 +119,7 @@ def profile_actions(profile_, context, folder):
         result_follow = quantity_followers
         follower_names_str = '\n'.join(follower_names)
 
-        result_actions = followers_actions(follower_names, target_username, folder)
+        result_actions = followers_actions(follower=follower_names, target=target_username, folder=folder)
 
         with open(f"{folder_path}\\followers.{target_username}.txt", "w") as file:
 
@@ -137,14 +147,15 @@ def profile_actions(profile_, context, folder):
 
 
 def main():
-    result = profile_actions(profile_=profile, context=loader.context, folder=folder_path)
-    print(result.get("result"))
-    timer = result.get("timer")
+    try:
+        response = profile_actions(profile_=profile, context=loader.context, folder=folder_path)
+        print(response.get("result"))
+        timer = response.get("timer")
+        print(timer)
 
-    if timer < 61:
-        print(f"время выполнения {round(timer, 3)}sec")
-    else:
-        print(f"время выполнения {round(timer / 60, 2)}min")
+    except KeyboardInterrupt:
+        print(f"Завершено пользователем")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
