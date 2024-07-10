@@ -5,3 +5,4 @@ venv
 text.py
 *.txt
 session*
+*session

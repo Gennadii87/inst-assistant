@@ -1,6 +1,7 @@
 import os
 import sys
 from datetime import datetime
+from time import sleep
 
 from dotenv import load_dotenv
 from instaloader import (Instaloader,
@@ -34,7 +35,7 @@ print(f"Инициализация {datetime.now().time()}")
 
 
 try:
-    loader.load_session_from_file(f"{username}", f"session_file_{username}")
+    loader.load_session_from_file(f"{username}", f"file_{username}.session")
     print(f"Get session {datetime.now().time()}")
 except FileNotFoundError:
 
@@ -59,7 +60,7 @@ except FileNotFoundError:
         print(f"Login required: {exc}")
         exit(1)
 
-    loader.save_session_to_file(f"session_file_{username}")
+    loader.save_session_to_file(f"file_{username}.session")
 
 
 try:
@@ -135,14 +136,14 @@ def profile_actions(profile_, context, folder):
 
         return result_all
 
-    except LoginRequiredException as exc:
-        print(f"Login required to get followers: {exc}")
+    except LoginRequiredException as e:
+        print(f"Login required to get followers: {e}")
         exit(1)
-    except ConnectionException as exc:
-        print(f"Connection error while getting followers: {exc}")
+    except ConnectionException as e:
+        print(f"Connection error while getting followers: {e}")
         exit(1)
-    except Exception as exc:
-        print(f"Unexpected error: {exc}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
         exit(1)
 
 
@@ -154,6 +155,7 @@ def main():
         print(timer)
 
     except KeyboardInterrupt:
+        sleep(1)
         print(f"Завершено пользователем")
         sys.exit(1)
 
