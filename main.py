@@ -23,25 +23,25 @@ if not username or not password:
     raise ValueError("USER_NAME and PASSWORD must be set in the .env file")
 
 
-app = Instaloader(sleep=True)
+loader = Instaloader(sleep=True)
 NodeIterator._graphql_page_length = 10
 
 print(f"Инициализация {datetime.now().time()}")
 
 
 try:
-    app.load_session_from_file(username)
+    loader.load_session_from_file(username)
     print(f"Get session {datetime.now().time()}")
 except FileNotFoundError:
 
     try:
-        app.login(username, password)
+        loader.login(username, password)
         print(f"Login profile {datetime.now().time()}")
     except TwoFactorAuthRequiredException:
 
         two_factor_code = input("Enter the 2FA code: ")
         try:
-            app.context.two_factor_login(two_factor_code)
+            loader.context.two_factor_login(two_factor_code)
         except BadCredentialsException as e:
             print(f"Failed 2FA login: {e}")
             exit(1)
@@ -55,10 +55,10 @@ except FileNotFoundError:
         print(f"Login required: {e}")
         exit(1)
 
-    app.save_session_to_file()
+    loader.save_session_to_file()
 
 try:
-    profile = Profile.from_username(app.context, target_username)
+    profile = Profile.from_username(loader.context, target_username)
 except LoginRequiredException as e:
     print(f"Login required to access profile: {e}")
     exit(1)
@@ -135,7 +135,7 @@ def profile_actions(profile_, context):
 
 
 def main():
-    timer = profile_actions(profile, context=app.context)
+    timer = profile_actions(profile, context=loader.context)
     if timer < 61:
         print(f"время выполнения {round(timer, 3)}sec")
     else:
