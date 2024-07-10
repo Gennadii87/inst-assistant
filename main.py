@@ -105,6 +105,26 @@ def profile_actions(profile_, context, folder):
 
         print(f"Completed fetching followers: {len(follower_names)}")
 
+        result_name = profile_.username
+        result_follow = quantity_followers
+        follower_names_str = '\n'.join(follower_names)
+
+        result_actions = followers_actions(follower_names, target_username, folder)
+
+        with open(f"{folder_path}\\followers.{target_username}.txt", "w") as file:
+
+            if follower_names:
+                file.write(follower_names_str)
+                print(f"{file.name} записан")
+
+        result_all = {
+                        "Имя пользователя": result_name,
+                        "Количество подписчиков": result_follow,
+                        "Действия": result_actions if result_actions is not None else "Действий не обнаружено"
+                     }
+
+        return result_all
+
     except LoginRequiredException as exc:
         print(f"Login required to get followers: {exc}")
         exit(1)
@@ -115,30 +135,12 @@ def profile_actions(profile_, context, folder):
         print(f"Unexpected error: {exc}")
         exit(1)
 
-    result_name = profile_.username
-    result_follow = quantity_followers
-    follower_names_str = '\n'.join(follower_names)
-
-    result_actions = followers_actions(follower_names, target_username, folder)
-
-    with open(f"{folder_path}/followers.{target_username}.txt", "w") as file:
-
-        if follower_names:
-            file.write(follower_names_str)
-            print(f"{file.name} записан")
-
-    result_all = {
-                    "Имя пользователя": result_name,
-                    "Количество подписчиков": result_follow,
-                    "Действия": result_actions if result_actions is not None else "Действий не обнаружено"
-                 }
-
-    print(result_all)
-    return result_all
-
 
 def main():
-    timer = profile_actions(profile_=profile, context=loader.context, folder=folder_path)
+    result = profile_actions(profile_=profile, context=loader.context, folder=folder_path)
+    print(result.get("result"))
+    timer = result.get("timer")
+
     if timer < 61:
         print(f"время выполнения {round(timer, 3)}sec")
     else:
