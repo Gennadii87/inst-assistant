@@ -1,4 +1,14 @@
+import time
 import os
+
+
+def func_stopwatch(func):
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        func(*args, **kwargs)
+        end = time.time()
+        return end - start
+    return wrapper
 
 
 def followers_actions(response, target_username):
@@ -24,7 +34,6 @@ def followers_actions(response, target_username):
                     new_followers_str = '\n'.join(new_followers)
                     not_f.write(new_followers_str)
 
-                    return f"новые последователи:\n{new_followers_str}"
+                    return f"новые followers:\n{new_followers_str}"
 
-        return f"Изменений в подписчиках нет"
-
+        return f"Изменений в followers нет"

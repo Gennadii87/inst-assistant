@@ -1,13 +1,16 @@
 import os
+from datetime import datetime
+
 from dotenv import load_dotenv
 from instaloader import (Instaloader,
                          Profile,
                          TwoFactorAuthRequiredException,
                          BadCredentialsException,
                          ConnectionException,
-                         LoginRequiredException)
+                         LoginRequiredException, NodeIterator)
 
-from followers import followers_actions
+from service import followers_actions
+from service import func_stopwatch
 
 load_dotenv()
 
@@ -20,14 +23,20 @@ if not username or not password:
     raise ValueError("USER_NAME and PASSWORD must be set in the .env file")
 
 
-app = Instaloader()
+app = Instaloader(sleep=True)
+NodeIterator._graphql_page_length = 10
+
+print(f"Инициализация {datetime.now().time()}")
+
 
 try:
     app.load_session_from_file(username)
+    print(f"Get session {datetime.now().time()}")
 except FileNotFoundError:
 
     try:
         app.login(username, password)
+        print(f"Login profile {datetime.now().time()}")
     except TwoFactorAuthRequiredException:
 
         two_factor_code = input("Enter the 2FA code: ")
@@ -58,11 +67,41 @@ except ConnectionException as e:
     exit(1)
 
 
-def profile_actions(profile_):
+@func_stopwatch
+def profile_actions(profile_, context):
     try:
+        context.do_sleep()
+        print(f"start: {datetime.now().time()}")
+
+        context.do_sleep()
         quantity_followers = profile_.followers
+        print(f"Всего followers: {quantity_followers}")
+
+        context.do_sleep()
+        print(f"Получение followers..")
+
         followers = profile_.get_followers()
-        follower_names = set([follower.username for follower in followers])
+
+        page_length_int = followers.page_length()
+
+        print(f"Длинна запрашиваемой страницы {page_length_int}")
+
+        follower_names = set()
+
+        for index, follower in enumerate(followers, start=1):
+            follower_names.add(follower.username)
+
+            if index % 7 == 0:
+                @func_stopwatch
+                def request_sleep():
+                    context.do_sleep()
+
+                sleep_time = request_sleep()
+                timer = round(sleep_time, 3)
+                print(f"Пауза ({timer}sec)... {index} followers")
+
+        print(f"Completed fetching followers: {len(follower_names)}")
+
     except LoginRequiredException as exc:
         print(f"Login required to get followers: {exc}")
         exit(1)
@@ -80,6 +119,7 @@ def profile_actions(profile_):
     result_actions = followers_actions(follower_names, target_username)
 
     with open(f"followers.{target_username}.txt", "w") as file:
+
         if follower_names:
             file.write(follower_names_str)
             print(f"{file.name} записан")
@@ -87,15 +127,19 @@ def profile_actions(profile_):
     result_all = {
                     "Имя пользователя": result_name,
                     "Количество подписчиков": result_follow,
-                    "Действия": result_actions
-
+                    "Действия": result_actions if result_actions is not None else "Действий не обнаружено"
                  }
+
     print(result_all)
     return result_all
 
 
 def main():
-    profile_actions(profile)
+    timer = profile_actions(profile, context=app.context)
+    if timer < 61:
+        print(f"время выполнения {round(timer, 3)}sec")
+    else:
+        print(f"время выполнения {round(timer / 60, 2)}min")
 
 
 if __name__ == "__main__":

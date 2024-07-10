@@ -2,5 +2,5 @@
 .env
 *.pyc
 venv
-
+text.py
 *.txt
