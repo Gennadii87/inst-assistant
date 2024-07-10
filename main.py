@@ -33,7 +33,7 @@ print(f"Инициализация {datetime.now().time()}")
 
 
 try:
-    loader.load_session_from_file(username)
+    loader.load_session_from_file(f"{username}", f"session_file_{username}")
     print(f"Get session {datetime.now().time()}")
 except FileNotFoundError:
 
@@ -58,7 +58,7 @@ except FileNotFoundError:
         print(f"Login required: {e}")
         exit(1)
 
-    loader.save_session_to_file()
+    loader.save_session_to_file(f"session_file_{username}")
 
 try:
     profile = Profile.from_username(loader.context, target_username)
