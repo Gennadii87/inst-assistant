@@ -5,17 +5,17 @@ from service.profile import profile_actions, profile, loader, folder_path
 
 
 def main():
-    try:
-        response = profile_actions(profile_=profile, context=loader.context, folder=folder_path)
-        print(response.get("result"))
-        timer = response.get("timer")
-        print(timer)
 
-    except KeyboardInterrupt:
-        sleep(1)
-        print(f"Завершено пользователем")
-        sys.exit(1)
+    response = profile_actions(profile_=profile, context=loader.context, folder=folder_path)
+    print(response.get("result"))
+    timer = response.get("timer")
+    print(timer)
 
 
-if __name__ == "__main__":
-    main()
+try:
+    if __name__ == "__main__":
+        main()
+except KeyboardInterrupt:
+    sleep(1)
+    print(f"Завершено пользователем")
+    sys.exit(1)

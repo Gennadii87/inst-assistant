@@ -21,8 +21,9 @@ password = os.getenv("PASSWORD")
 
 target_username = os.getenv("TARGET_USER")
 
-if not username or not password:
-    raise ValueError("USER_NAME and PASSWORD must be set in the .env file")
+if not username or not target_username or not password:
+    print("USER_NAME, TARGET_USER and PASSWORD must be set in the .env file")
+    exit(1)
 
 
 loader = Instaloader(sleep=True)
@@ -35,7 +36,7 @@ print(f"Инициализация {datetime.now().time()}")
 
 
 try:
-    loader.load_session_from_file(f"{username}", f"file_{username}.session")
+    loader.load_session_from_file(f"{username}", f"session/file_{username}.session")
     print(f"Get session {datetime.now().time()}")
 except FileNotFoundError:
 
@@ -60,7 +61,7 @@ except FileNotFoundError:
         print(f"Login required: {exc}")
         exit(1)
 
-    loader.save_session_to_file(f"file_{username}.session")
+    loader.save_session_to_file(f"session/file_{username}.session")
 
 
 try:
