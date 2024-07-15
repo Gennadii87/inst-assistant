@@ -1,9 +1,8 @@
 # inst-assistant
  assistant on instagram
-<hr/>
 Мини приложения для мониторинга отписавшихся от вашего профиля в социальной сети instagram </br>
 "Mini applications for monitoring those who have unsubscribed from your profile on the social network Instagram"</br>
-
+<hr/>
 Перед использованием необходимо создать файл .env <br/>
 "You must create a .env file before use"</br>
 <pre>
