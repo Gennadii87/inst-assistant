@@ -1,5 +1,4 @@
 # inst-assistant
- assistant on instagram
 Мини приложения для мониторинга отписавшихся от вашего профиля в социальной сети instagram </br>
 "Mini applications for monitoring those who have unsubscribed from your profile on the social network Instagram"</br>
 <hr/>
