@@ -5,11 +5,13 @@
 Перед использованием необходимо создать файл .env <br/>
 "You must create a .env file before use" <br/>
 <pre>
+
     USER_NAME=''
 
     PASSWORD=''
     
     TARGET_USER=''
+
 </pre>
 
 USER_NAME и PASSWORD - ваш логин и пароль <br/>
