@@ -25,7 +25,6 @@ if not username or not target_username or not password:
     print("USER_NAME, TARGET_USER and PASSWORD must be set in the .env file")
     exit(1)
 
-
 loader = Instaloader(sleep=True)
 NodeIterator._graphql_page_length = 48
 
@@ -33,7 +32,6 @@ folder_path = os.path.join(os.getcwd(), "followers")
 os.makedirs(folder_path, exist_ok=True)
 
 print(f"Инициализация {datetime.now().time()}")
-
 
 try:
     loader.load_session_from_file(f"{username}", f"session/file_{username}.session")
@@ -62,7 +60,6 @@ except FileNotFoundError:
         exit(1)
 
     loader.save_session_to_file(f"session/file_{username}.session")
-
 
 try:
     profile = Profile.from_username(loader.context, target_username)
@@ -106,7 +103,7 @@ def profile_actions(profile_, context, folder):
         for index, follower in enumerate(followers, start=1):
             follower_names.add(follower.username)
 
-            if index % 45 == 0:
+            if index % 20 == 0:
                 @func_stopwatch
                 def request_sleep():
                     context.do_sleep()
@@ -124,16 +121,15 @@ def profile_actions(profile_, context, folder):
         result_actions = followers_actions(follower=follower_names, target=target_username, folder=folder)
 
         with open(f"{folder_path}\\followers.{target_username}.txt", "w") as file:
-
             if follower_names:
                 file.write(follower_names_str)
                 print(f"{file.name} записан")
 
         result_all = {
-                        "Имя пользователя": result_name,
-                        "Количество подписчиков": result_follow,
-                        "Действия": result_actions if result_actions is not None else "Действий не обнаружено"
-                     }
+            "Имя пользователя": result_name,
+            "Количество подписчиков": result_follow,
+            "Действия": result_actions if result_actions is not None else "Действий не обнаружено"
+        }
 
         return result_all
 
